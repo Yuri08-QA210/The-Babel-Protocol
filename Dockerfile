@@ -11,8 +11,8 @@
 
 FROM python:3.11-slim
 
-LABEL maintainer="QA CTF Team"
-LABEL description="QA CTF Challenge — Full Stack (Single Container)"
+LABEL maintainer="Babel Protocol Team"
+LABEL description="Babel Protocol — Enterprise Data Processing Platform"
 
 # ============================================================
 # Install system dependencies
@@ -55,8 +55,28 @@ COPY internal-service/ /app/internal-service/
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY start.sh /app/start.sh
-# NOTE: .env is NOT copied — it's not in git (it's in .gitignore)
-# Environment variables are set via Render.com dashboard or start.sh defaults
+
+# ============================================================
+# Set default environment variables (can be overridden via Render dashboard)
+# The .env file is NOT in git (.gitignore), so we embed defaults here.
+# start.sh also has fallback defaults, but ENV ensures they're available
+# during Docker build and runtime.
+# ============================================================
+ENV STAGE1_FLAG="QA{w4sm_r3v3rs1ng_xxe_00b_ssrf_ch41n}" \
+    STAGE2_FLAG="QA{sst1_f0rg3d_s3ss10n_rc3_ch41n_byp4ss}" \
+    FINAL_FLAG="QA{smuggl1ng_r4c3_c0nd1t10n_ful1_syst3m_t4k30v3r}" \
+    SECRET_KEY_PART1="qa-s3cr3t-k3y-p4rt1-" \
+    SECRET_KEY_PART2="p4rt2-fr0m-d4t4b4s3!" \
+    ADMIN_PASSWORD="sup3r_s3cur3_4dm1n!" \
+    INTERNAL_TOKEN="qa-internal-smuggle-token-2024-xk9" \
+    GRANT_SEED="xk9z-seed-2024" \
+    INTERNAL_SERVICE_HOST="127.0.0.1" \
+    INTERNAL_SERVICE_PORT="8888" \
+    RACE_WINDOW_MS="3" \
+    FLAG_MEMORY_TTL_MS="300" \
+    SESSION_LIFETIME_MINUTES="15" \
+    DB_PATH="/var/lib/qa-challenge/challenge.db" \
+    FLASK_SECRET_KEY=""
 
 # ============================================================
 # Compile WAT → WASM

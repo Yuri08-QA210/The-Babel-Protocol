@@ -11,7 +11,7 @@
 
 set -e
 
-echo "=== QA CTF Challenge — Starting ==="
+echo "=== Babel Protocol — Starting ==="
 
 # ============================================================
 # Load .env file if present (for local docker-compose)
@@ -52,13 +52,7 @@ export SESSION_LIFETIME_MINUTES="${SESSION_LIFETIME_MINUTES:-15}"
 export DB_PATH="${DB_PATH:-/var/lib/qa-challenge/challenge.db}"
 export FLASK_SECRET_KEY="${FLASK_SECRET_KEY:-${SECRET_KEY_PART1}${SECRET_KEY_PART2}}"
 
-echo "[*] STAGE1_FLAG: ${STAGE1_FLAG:0:10}..."
-echo "[*] STAGE2_FLAG: ${STAGE2_FLAG:0:10}..."
-echo "[*] FINAL_FLAG: ${FINAL_FLAG:0:10}..."
-echo "[*] SECRET_KEY_PART1: ${SECRET_KEY_PART1:0:5}..."
-echo "[*] GRANT_SEED: ${GRANT_SEED}"
-echo "[*] INTERNAL_SERVICE_HOST: ${INTERNAL_SERVICE_HOST}"
-echo "[*] INTERNAL_SERVICE_PORT: ${INTERNAL_SERVICE_PORT}"
+echo "[*] Environment variables loaded"
 
 # ============================================================
 # Compile WAT → WASM if not already done
@@ -113,13 +107,11 @@ print('[+] Database initialized')
 # ============================================================
 echo "[*] Starting supervisord..."
 echo ""
-echo "=== QA CTF Challenge Running ==="
+echo "=== Babel Protocol Running ==="
 echo ""
-echo "  Stage 1 (Wasm + XXE + SSRF): /api/parse"
-echo "  Stage 2 (SSTI + RCE):        /portal/"
-echo "  Stage 3 (Smuggling + Race):  /api/vault/"
-echo ""
-echo "  Flag format: QA{...}"
+echo "  API Endpoint:    /api/parse"
+echo "  User Portal:     /portal/"
+echo "  Infrastructure:  /api/vault/"
 echo ""
 
 # ============================================================

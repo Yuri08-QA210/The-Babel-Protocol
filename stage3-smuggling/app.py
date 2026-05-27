@@ -487,73 +487,72 @@ def index():
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QA Vault Backend</title>
+<title>Babel Infrastructure — Monitoring</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0a0a0f;color:#e0e0e0;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
-.bg{position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at 60% 40%,rgba(255,0,170,0.04) 0%,transparent 50%),radial-gradient(circle at 30% 70%,rgba(0,170,255,0.03) 0%,transparent 50%);z-index:0}
-.container{max-width:900px;margin:0 auto;padding:40px 20px;position:relative;z-index:1;animation:fadeIn 0.6s ease-out}
-@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
-header{text-align:center;margin-bottom:40px}
-h1{font-size:2.2em;font-weight:800;background:linear-gradient(135deg,#ff00aa,#dd0088);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
-.sub{font-size:0.85em;color:#555;letter-spacing:3px;text-transform:uppercase}
-.dashboard{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:30px}
-.card{background:#111118;border:1px solid #1a1a2e;border-radius:12px;padding:20px;position:relative;overflow:hidden}
-.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#ff00aa,#dd0088);border-radius:12px 12px 0 0}
-.card-label{font-size:0.7em;color:#666;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
-.card-value{font-size:1.4em;font-weight:700;color:#f0f0f0}
-.card-value.mono{font-family:monospace;color:#ff00aa99}
-.card-value.ok{color:#00ffaa}
-.card-value.locked{color:#ff6666}
-.status-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:30px}
-.status-item{background:#111118;border:1px solid #1a1a2e;border-radius:10px;padding:16px;text-align:center}
-.status-dot{width:10px;height:10px;border-radius:50%;margin:0 auto 8px}
-.status-dot.green{background:#00ffaa;box-shadow:0 0 10px rgba(0,255,170,0.5);animation:pulse 2s infinite}
-.status-dot.red{background:#ff4444}
-.status-label{font-size:0.7em;color:#666;letter-spacing:1px;text-transform:uppercase}
-.vault-panel{background:#111118;border:1px solid #1a1a2e;border-radius:16px;padding:24px;margin-bottom:24px}
-.vault-panel h2{font-size:1.1em;color:#e0e0e0;margin-bottom:16px;letter-spacing:1px}
-.vault-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#ff00aa,#00aaff);border-radius:16px 16px 0 0}
-.endpoints{list-style:none}
-.endpoints li{padding:10px 0;border-bottom:1px solid #1a1a2e;font-size:0.85em;display:flex;justify-content:space-between;align-items:center}
-.endpoints li:last-child{border:none}
-.ep-method{padding:3px 8px;border-radius:4px;font-size:0.7em;font-weight:700;letter-spacing:1px}
-.ep-method.get{background:#00ffaa15;color:#00ffaa;border:1px solid #00ffaa33}
-.ep-method.post{background:#ff00aa15;color:#ff00aa;border:1px solid #ff00aa33}
-.ep-path{font-family:monospace;color:#aaa;font-size:0.8em}
-.ep-desc{color:#555;font-size:0.75em}
-footer{text-align:center;padding:30px;color:#333;font-size:0.7em;letter-spacing:2px}
+body{background:#06080d;color:#c8d0dc;font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;min-height:100vh;overflow-x:hidden}
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.container{max-width:960px;margin:0 auto;padding:30px 20px;position:relative;z-index:1;animation:fadeIn .6s ease-out}
+@keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+header{text-align:center;margin-bottom:36px}
+.brand{font-size:2em;font-weight:800;letter-spacing:4px;background:linear-gradient(135deg,#cc44ff,#9933cc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:5px}
+.brand-sub{font-size:.78em;color:#3e4858;letter-spacing:2px}
+.dashboard{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px}
+.card{background:rgba(14,18,27,.85);border:1px solid rgba(204,68,255,.08);border-radius:12px;padding:18px;position:relative;overflow:hidden;backdrop-filter:blur(10px)}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#cc44ff,#9933cc);border-radius:12px 12px 0 0}
+.card-label{font-size:.65em;color:#4e5a6b;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px}
+.card-value{font-size:1.3em;font-weight:700;color:#e0e5ed}
+.card-value.mono{font-family:monospace;color:rgba(204,68,255,.7)}
+.card-value.ok{color:#00d4aa}
+.card-value.warn{color:#ff8c42}
+.status-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:28px}
+.status-item{background:rgba(14,18,27,.85);border:1px solid rgba(255,255,255,.04);border-radius:10px;padding:14px;text-align:center}
+.status-dot{width:8px;height:8px;border-radius:50%;margin:0 auto 6px}
+.status-dot.green{background:#00d4aa;box-shadow:0 0 8px rgba(0,212,170,.4);animation:pulse 2s infinite}
+.status-dot.red{background:#ff4757}
+.status-dot.yellow{background:#ffa502;animation:pulse 1.5s infinite}
+.status-label{font-size:.65em;color:#4e5a6b;letter-spacing:1px;text-transform:uppercase}
+.panel{background:rgba(14,18,27,.85);border:1px solid rgba(204,68,255,.08);border-radius:14px;padding:22px;margin-bottom:22px;position:relative;backdrop-filter:blur(10px)}
+.panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#cc44ff,#4488ff);border-radius:14px 14px 0 0}
+.panel h2{font-size:1em;color:#c8d0dc;margin-bottom:14px;letter-spacing:.5px;font-weight:600}
+.ep-list{list-style:none}
+.ep-list li{padding:9px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:.82em;display:flex;justify-content:space-between;align-items:center}
+.ep-list li:last-child{border:none}
+.ep-method{padding:2px 7px;border-radius:4px;font-size:.68em;font-weight:700;letter-spacing:.5px}
+.ep-method.get{background:rgba(0,212,170,.08);color:#00d4aa;border:1px solid rgba(0,212,170,.15)}
+.ep-method.post{background:rgba(204,68,255,.08);color:#cc44ff;border:1px solid rgba(204,68,255,.15)}
+.ep-path{font-family:monospace;color:#6b7a8d;font-size:.78em}
+.ep-desc{color:#3e4858;font-size:.7em}
+.footer-bar{text-align:center;padding:22px 0;margin-top:40px;border-top:1px solid rgba(255,255,255,.03);font-size:.7em;color:#2e3646;letter-spacing:1px}
 </style>
 </head>
 <body>
-<div class="bg"></div>
+<canvas id="bg-canvas"></canvas>
 <div class="container">
 <header>
-<h1>VAULT BACKEND</h1>
-<div class="sub">QA Security Infrastructure v3.0.0</div>
+<div class="brand">BABEL INFRASTRUCTURE</div>
+<div class="brand-sub">Monitoring &middot; v3.0.0</div>
 </header>
-
 <div class="dashboard">
 <div class="card">
-<div class="card-label">Vault Status</div>
-<div class="card-value locked" id="vaultStatus">LOCKED</div>
+<div class="card-label">Service Status</div>
+<div class="card-value ok" id="vaultStatus">Operational</div>
 </div>
 <div class="card">
-<div class="card-label">Flag in Memory</div>
-<div class="card-value" id="flagMemory" style="color:#555">None</div>
+<div class="card-label">Memory Cache</div>
+<div class="card-value" id="flagMemory" style="color:#4e5a6b">Empty</div>
 </div>
 <div class="card">
 <div class="card-label">Access Level</div>
-<div class="card-value mono">user</div>
+<div class="card-value mono">Standard</div>
 </div>
 <div class="card">
-<div class="card-label">Requests</div>
+<div class="card-label">Active Requests</div>
 <div class="card-value mono" id="reqCount">0</div>
 </div>
 </div>
-
-<div class="status-grid">
+<div class="status-row">
 <div class="status-item">
 <div class="status-dot green"></div>
 <div class="status-label">Database</div>
@@ -563,26 +562,28 @@ footer{text-align:center;padding:30px;color:#333;font-size:0.7em;letter-spacing:
 <div class="status-label">Cache</div>
 </div>
 <div class="status-item">
-<div class="status-dot red"></div>
-<div class="status-label">Admin Access</div>
+<div class="status-dot yellow"></div>
+<div class="status-label">Admin API</div>
 </div>
 </div>
-
-<div class="vault-panel">
+<div class="panel">
 <h2>API Endpoints</h2>
-<ul class="endpoints">
+<ul class="ep-list">
 <li><span><span class="ep-method get">GET</span> <span class="ep-path">/api/health</span></span><span class="ep-desc">Health check</span></li>
-<li><span><span class="ep-method get">GET</span> <span class="ep-path">/api/vault/status</span></span><span class="ep-desc">Vault status</span></li>
+<li><span><span class="ep-method get">GET</span> <span class="ep-path">/api/vault/status</span></span><span class="ep-desc">Service status</span></li>
 <li><span><span class="ep-method post">POST</span> <span class="ep-path">/api/vault/grant</span></span><span class="ep-desc">Request elevation</span></li>
-<li><span><span class="ep-method post">POST</span> <span class="ep-path">/admin/vault</span></span><span class="ep-desc">Admin vault access</span></li>
-<li><span><span class="ep-method get">GET</span> <span class="ep-path">/admin/vault/flag</span></span><span class="ep-desc">Get encrypted flag</span></li>
+<li><span><span class="ep-method post">POST</span> <span class="ep-path">/admin/vault</span></span><span class="ep-desc">Admin access</span></li>
+<li><span><span class="ep-method get">GET</span> <span class="ep-path">/admin/vault/flag</span></span><span class="ep-desc">Encrypted data</span></li>
 </ul>
 </div>
-
-<footer>VAULT BACKEND &mdash; QA SECURITY INFRASTRUCTURE &mdash; ALL REQUESTS RETURN 200 OK</footer>
+<div class="footer-bar">Babel Infrastructure v3.0.0 &copy; 2024</div>
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-fetch('/api/vault/status').then(r=>r.json()).then(d=>{if(d.vault_status)document.getElementById('vaultStatus').textContent=d.vault_status.toUpperCase();if(d.flag_in_memory!==undefined)document.getElementById('flagMemory').textContent=d.flag_in_memory?'Available':'None';if(d.concurrent_requests)document.getElementById('reqCount').textContent=d.concurrent_requests}).catch(()=>{});
+(function(){var c=document.getElementById('bg-canvas');var scene=new THREE.Scene();var cam=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,0.1,1000);var ren=new THREE.WebGLRenderer({canvas:c,alpha:true,antialias:true});ren.setSize(innerWidth,innerHeight);ren.setPixelRatio(Math.min(devicePixelRatio,2));var GS=14;var SP=1.6;var N=GS*GS;var pos=new Float32Array(N*3);var meta=[];for(var x=0;x<GS;x++){for(var z=0;z<GS;z++){var i=x*GS+z;pos[i*3]=(x-GS/2)*SP;pos[i*3+1]=0;pos[i*3+2]=(z-GS/2)*SP;meta.push({phase:Math.random()*Math.PI*2,speed:.4+Math.random()*1.2})}}var geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(pos,3));var mat=new THREE.PointsMaterial({size:.05,color:0xcc44ff,transparent:true,opacity:.5,sizeAttenuation:true});var pts=new THREE.Points(geo,mat);scene.add(pts);var lpos=[];for(var x=0;x<GS;x++){for(var z=0;z<GS;z++){var i=x*GS+z;if(x<GS-1){var ri=(x+1)*GS+z;lpos.push(pos[i*3],pos[i*3+1],pos[i*3+2],pos[ri*3],pos[ri*3+1],pos[ri*3+2])}if(z<GS-1){var bi=x*GS+z+1;lpos.push(pos[i*3],pos[i*3+1],pos[i*3+2],pos[bi*3],pos[bi*3+1],pos[bi*3+2])}}}var la=new Float32Array(lpos.length);for(var k=0;k<lpos.length;k++)la[k]=lpos[k];var lg=new THREE.BufferGeometry();lg.setAttribute('position',new THREE.BufferAttribute(la,3));var lm=new THREE.LineBasicMaterial({color:0xcc44ff,transparent:true,opacity:.06});var ln=new THREE.LineSegments(lg,lm);scene.add(ln);cam.position.set(0,14,14);cam.lookAt(0,0,0);var t=0;function anim(){requestAnimationFrame(anim);t+=.016;var p=geo.attributes.position.array;for(var i=0;i<N;i++){p[i*3+1]=Math.sin(t*meta[i].speed+meta[i].phase)*.35}geo.attributes.position.needsUpdate=true;var lp=lg.attributes.position.array;var li=0;for(var x=0;x<GS;x++){for(var z=0;z<GS;z++){var i=x*GS+z;if(x<GS-1){var ri=(x+1)*GS+z;lp[li++]=p[i*3];lp[li++]=p[i*3+1];lp[li++]=p[i*3+2];lp[li++]=p[ri*3];lp[li++]=p[ri*3+1];lp[li++]=p[ri*3+2]}if(z<GS-1){var bi=x*GS+z+1;lp[li++]=p[i*3];lp[li++]=p[i*3+1];lp[li++]=p[i*3+2];lp[li++]=p[bi*3];lp[li++]=p[bi*3+1];lp[li++]=p[bi*3+2]}}}lg.attributes.position.needsUpdate=true;ren.render(scene,cam)}anim();addEventListener('resize',function(){cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();ren.setSize(innerWidth,innerHeight)})})();
+</script>
+<script>
+fetch('/api/vault/status').then(function(r){return r.json()}).then(function(d){if(d.vault_status)document.getElementById('vaultStatus').textContent=d.vault_status==='locked'?'Locked':'Operational';if(d.flag_in_memory!==undefined)document.getElementById('flagMemory').textContent=d.flag_in_memory?'Active':'Empty';if(d.concurrent_requests)document.getElementById('reqCount').textContent=d.concurrent_requests}).catch(function(){});
 </script>
 </body>
 </html>'''

@@ -733,44 +733,46 @@ def index():
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QA User Portal</title>
+<title>Babel Protocol — Sign In</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0a0a12;color:#e0e0e0;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center}
-.bg{position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at 50% 30%,rgba(0,170,255,0.06) 0%,transparent 60%);z-index:0}
-.portal{width:100%;max-width:420px;padding:40px;background:#111118;border:1px solid #1a1a2e;border-radius:20px;position:relative;z-index:1;animation:fadeIn 0.6s ease-out}
-@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-.portal::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#00aaff,#0088dd);border-radius:20px 20px 0 0}
-h1{text-align:center;font-size:1.8em;font-weight:800;color:#00aaff;margin-bottom:6px;letter-spacing:2px}
-.portal-sub{text-align:center;font-size:0.8em;color:#555;margin-bottom:30px;letter-spacing:2px}
-.form-group{margin-bottom:18px}
-label{display:block;font-size:0.75em;color:#888;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
-input[type=text],input[type=password]{width:100%;padding:12px 16px;background:#0a0a0f;border:1px solid #1a1a2e;border-radius:8px;color:#e0e0e0;font-size:0.9em;outline:none;transition:border-color 0.3s}
-input:focus{border-color:#00aaff44}
-.btn{width:100%;padding:12px;border-radius:8px;border:none;cursor:pointer;font-size:0.9em;font-weight:700;letter-spacing:1px;transition:all 0.3s}
-.btn-primary{background:linear-gradient(135deg,#00aaff,#0088dd);color:#fff;margin-top:6px}
-.btn-primary:hover{box-shadow:0 0 25px rgba(0,170,255,0.4);transform:translateY(-2px)}
-.divider{text-align:center;margin:24px 0;color:#333;font-size:0.8em;letter-spacing:2px;position:relative}
-.divider::before,.divider::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:#1a1a2e}
-.divider::before{left:0}
-.divider::after{right:0}
-.register-link{text-align:center;font-size:0.8em;color:#666}
-.register-link a{color:#00aaff;text-decoration:none}
-.register-link a:hover{text-decoration:underline}
-.msg{text-align:center;padding:10px;border-radius:8px;font-size:0.8em;margin-bottom:16px;display:none}
+body{background:#06080d;color:#c8d0dc;font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center}
+#bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+@keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.portal{width:100%;max-width:400px;padding:36px;background:rgba(14,18,27,.9);border:1px solid rgba(68,136,255,.08);border-radius:18px;position:relative;z-index:1;animation:fadeIn .5s ease-out;backdrop-filter:blur(12px)}
+.portal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#4488ff,#2266dd);border-radius:18px 18px 0 0}
+.brand{text-align:center;margin-bottom:28px}
+.brand-name{font-size:1.5em;font-weight:700;letter-spacing:3px;background:linear-gradient(135deg,#4488ff,#2266dd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px}
+.brand-sub{font-size:.72em;color:#3e4858;letter-spacing:1.5px}
+.form-group{margin-bottom:16px}
+label{display:block;font-size:.7em;color:#4e5a6b;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;font-weight:500}
+input[type=text],input[type=password]{width:100%;padding:10px 14px;background:rgba(6,8,13,.8);border:1px solid rgba(255,255,255,.05);border-radius:8px;color:#c8d0dc;font-size:.88em;outline:none;transition:border-color .3s}
+input:focus{border-color:rgba(68,136,255,.3)}
+.btn{width:100%;padding:11px;border-radius:8px;border:none;cursor:pointer;font-size:.85em;font-weight:600;letter-spacing:.5px;transition:all .3s}
+.btn-primary{background:linear-gradient(135deg,#4488ff,#2266dd);color:#fff;margin-top:4px}
+.btn-primary:hover{box-shadow:0 4px 20px rgba(68,136,255,.3);transform:translateY(-1px)}
+.divider{text-align:center;margin:20px 0;color:#2e3646;font-size:.75em;letter-spacing:1.5px;position:relative}
+.divider::before,.divider::after{content:'';position:absolute;top:50%;width:38%;height:1px;background:rgba(255,255,255,.04)}
+.divider::before{left:0}.divider::after{right:0}
+.register-link{text-align:center;font-size:.78em;color:#3e4858}
+.register-link a{color:#4488ff;text-decoration:none;transition:color .3s}
+.register-link a:hover{color:#6699ff}
+.msg{text-align:center;padding:9px;border-radius:7px;font-size:.78em;margin-bottom:14px;display:none}
 .msg.visible{display:block}
-.msg.error{background:#ff00330d;border:1px solid #ff003333;color:#ff6666}
-.msg.success{background:#00ffaa0d;border:1px solid #00ffaa33;color:#00ffaa}
-.links{text-align:center;margin-top:20px}
-.links a{color:#555;font-size:0.75em;text-decoration:none;letter-spacing:1px}
-.links a:hover{color:#00aaff}
+.msg.error{background:rgba(255,60,60,.06);border:1px solid rgba(255,60,60,.12);color:#ff6b6b}
+.msg.success{background:rgba(0,212,170,.06);border:1px solid rgba(0,212,170,.12);color:#00d4aa}
+.links{text-align:center;margin-top:18px}
+.links a{color:#2e3646;font-size:.7em;text-decoration:none;letter-spacing:.5px;transition:color .3s}
+.links a:hover{color:#4488ff}
 </style>
 </head>
 <body>
-<div class="bg"></div>
+<canvas id="bg-canvas"></canvas>
 <div class="portal">
-<h1>QA Portal</h1>
-<div class="portal-sub">USER AUTHENTICATION</div>
+<div class="brand">
+<div class="brand-name">BABEL PROTOCOL</div>
+<div class="brand-sub">Sign in to your account</div>
+</div>
 <div class="msg" id="msg"></div>
 <form id="loginForm" onsubmit="return doLogin(event)">
 <div class="form-group">
@@ -784,10 +786,10 @@ input:focus{border-color:#00aaff44}
 <button type="submit" class="btn btn-primary">Sign In</button>
 </form>
 <div class="divider">OR</div>
-<div class="register-link">Don't have an account? <a href="#" onclick="showRegister()">Register</a></div>
+<div class="register-link">Don't have an account? <a href="#" onclick="showRegister()">Create one</a></div>
 <div id="registerForm" style="display:none">
 <form onsubmit="return doRegister(event)">
-<div class="form-group" style="margin-top:16px">
+<div class="form-group" style="margin-top:14px">
 <label>New Username</label>
 <input type="text" id="reg_username" placeholder="Choose username" autocomplete="off">
 </div>
@@ -799,14 +801,18 @@ input:focus{border-color:#00aaff44}
 </form>
 </div>
 <div class="links">
-<a href="/profile">Profile</a> &middot; <a href="/">Back to Home</a>
+<a href="/profile">Profile</a> &middot; <a href="/">Home</a>
 </div>
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-function showMsg(t,m,ok){const el=document.getElementById('msg');el.textContent=m;el.className='msg visible '+(ok?'success':'error');setTimeout(()=>el.className='msg',4000)}
+(function(){var c=document.getElementById('bg-canvas');var scene=new THREE.Scene();var cam=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,0.1,1000);var ren=new THREE.WebGLRenderer({canvas:c,alpha:true,antialias:true});ren.setSize(innerWidth,innerHeight);ren.setPixelRatio(Math.min(devicePixelRatio,2));var N=250;var pos=new Float32Array(N*3);var vel=[];for(var i=0;i<N;i++){pos[i*3]=(Math.random()-.5)*30;pos[i*3+1]=(Math.random()-.5)*30;pos[i*3+2]=(Math.random()-.5)*15-5;vel.push({x:(Math.random()-.5)*.002,y:-(Math.random()*.008+.003),z:(Math.random()-.5)*.001})}var geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(pos,3));var mat=new THREE.PointsMaterial({size:.035,color:0x4488ff,transparent:true,opacity:.35,sizeAttenuation:true});var pts=new THREE.Points(geo,mat);scene.add(pts);cam.position.z=12;function anim(){requestAnimationFrame(anim);var p=geo.attributes.position.array;for(var i=0;i<N;i++){p[i*3]+=vel[i].x;p[i*3+1]+=vel[i].y;p[i*3+2]+=vel[i].z;if(p[i*3+1]<-15){p[i*3]=(Math.random()-.5)*30;p[i*3+1]=15;p[i*3+2]=(Math.random()-.5)*15-5}}geo.attributes.position.needsUpdate=true;ren.render(scene,cam)}anim();addEventListener('resize',function(){cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();ren.setSize(innerWidth,innerHeight)})})();
+</script>
+<script>
+function showMsg(t,m,ok){var el=document.getElementById('msg');el.textContent=m;el.className='msg visible '+(ok?'success':'error');setTimeout(function(){el.className='msg'},4000)}
 function showRegister(){document.getElementById('registerForm').style.display='block';document.getElementById('loginForm').style.display='none'}
-async function doLogin(e){e.preventDefault();const u=document.getElementById('username').value;const p=document.getElementById('password').value;if(!u||!p){showMsg('','Please fill all fields',false);return false}try{const r=await fetch('/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});const d=await r.json();if(d.message==='Authenticated'){showMsg('','Login successful!',true);setTimeout(()=>window.location.href='/profile',800)}else{showMsg('','Authentication failed',false)}}catch(e){showMsg('','Connection error',false)}return false}
-async function doRegister(e){e.preventDefault();const u=document.getElementById('reg_username').value;const p=document.getElementById('reg_password').value;if(!u||!p){showMsg('','Please fill all fields',false);return false}try{const r=await fetch('/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});const d=await r.json();showMsg('','Account created — try logging in',true);document.getElementById('loginForm').style.display='block';document.getElementById('registerForm').style.display='none'}catch(e){showMsg('','Registration error',false)}return false}
+async function doLogin(e){e.preventDefault();var u=document.getElementById('username').value;var p=document.getElementById('password').value;if(!u||!p){showMsg('','Please fill all fields',false);return false}try{var r=await fetch('/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});var d=await r.json();if(d.message==='Authenticated'){showMsg('','Login successful!',true);setTimeout(function(){window.location.href='/profile'},800)}else{showMsg('','Authentication failed',false)}}catch(e){showMsg('','Connection error',false)}return false}
+async function doRegister(e){e.preventDefault();var u=document.getElementById('reg_username').value;var p=document.getElementById('reg_password').value;if(!u||!p){showMsg('','Please fill all fields',false);return false}try{var r=await fetch('/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});var d=await r.json();showMsg('','Account created. Try logging in.',true);document.getElementById('loginForm').style.display='block';document.getElementById('registerForm').style.display='none'}catch(e){showMsg('','Registration error',false)}return false}
 </script>
 </body>
 </html>'''
