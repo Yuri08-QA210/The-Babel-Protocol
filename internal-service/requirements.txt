@@ -1,0 +1,4 @@
+flask==3.0.0
+lxml==5.1.0
+itsdangerous==2.1.2
+werkzeug==3.0.1

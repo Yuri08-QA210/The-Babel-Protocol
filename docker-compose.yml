@@ -1,0 +1,170 @@
+# ============================================================
+# QA CTF Challenge — Full Stack Deployment
+# ============================================================
+# Architecture:
+#   Nginx (Reverse Proxy/WAF) → Stage1/Stage2/Stage3 Backends
+#   Internal Service (localhost only, random port)
+#   Shared SQLite database volume
+#
+# Attack chain:
+#   Stage 1: Wasm Reversing → XXE → SSRF → Secret Key
+#   Stage 2: Secret Key → Forge Session → SSTI → RCE
+#   Stage 3: RCE → Smuggling → Race Condition → Final Flag
+# ============================================================
+
+version: '3.8'
+
+services:
+  # ============================================================
+  # Nginx Reverse Proxy — The Gatekeeper
+  # VULNERABLE: TE.TE HTTP Request Smuggling
+  # ============================================================
+  nginx-proxy:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      stage1-app:
+        condition: service_started
+      stage2-app:
+        condition: service_started
+      stage3-app:
+        condition: service_started
+    networks:
+      - qa-ctf-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ============================================================
+  # Stage 1: XML Processor (Wasm + XXE + SSRF)
+  # Port: 5000 (internal only)
+  # ============================================================
+  stage1-app:
+    build:
+      context: ./stage1-wasm-xxe
+      dockerfile: Dockerfile
+    environment:
+      - STAGE1_FLAG=${STAGE1_FLAG}
+      - INTERNAL_SERVICE_HOST=internal-service
+      - INTERNAL_SERVICE_PORT=${INTERNAL_SERVICE_PORT:-8888}
+      - DB_PATH=/var/lib/qa-challenge/challenge.db
+    volumes:
+      - qa-data:/var/lib/qa-challenge
+    networks:
+      - qa-ctf-net
+    depends_on:
+      internal-service:
+        condition: service_started
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:5000/api/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # ============================================================
+  # Stage 2: User Portal (SSTI)
+  # Port: 5001 (internal only)
+  # ============================================================
+  stage2-app:
+    build:
+      context: ./stage2-ssti
+      dockerfile: Dockerfile
+    environment:
+      # NOTE: FLASK_SECRET_KEY is NOT used by Stage 2 anymore.
+      # The real signing key is SHA256(SECRET_KEY_PART1 + SECRET_KEY_PART2).
+      # FLASK_SECRET_KEY is kept for compatibility but is a DECOY.
+      - FLASK_SECRET_KEY=${STAGE1_FLAG}decoy_key_do_not_use
+      - STAGE2_FLAG=${STAGE2_FLAG}
+      - SECRET_KEY_PART1=${SECRET_KEY_PART1}
+      - SECRET_KEY_PART2=${SECRET_KEY_PART2}
+      - INTERNAL_TOKEN=${INTERNAL_TOKEN}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - DB_PATH=/var/lib/qa-challenge/challenge.db
+      - FLAG_XOR_SEED=${FLAG_XOR_SEED}
+    volumes:
+      - qa-data:/var/lib/qa-challenge
+    networks:
+      - qa-ctf-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:5001/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # ============================================================
+  # Stage 3: Vault Backend (Smuggling + Race Condition)
+  # Port: 5002 (internal only)
+  # ============================================================
+  stage3-app:
+    build:
+      context: ./stage3-smuggling
+      dockerfile: Dockerfile
+    environment:
+      - FINAL_FLAG=${FINAL_FLAG}
+      - INTERNAL_TOKEN=${INTERNAL_TOKEN}
+      - RACE_WINDOW_MS=${RACE_WINDOW_MS:-3}
+      - FLAG_MEMORY_TTL_MS=${FLAG_MEMORY_TTL_MS:-300}
+      - DB_PATH=/var/lib/qa-challenge/challenge.db
+      - FLAG_XOR_SEED=${FLAG_XOR_SEED}
+    volumes:
+      - qa-data:/var/lib/qa-challenge
+    networks:
+      - qa-ctf-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:5002/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  # ============================================================
+  # Internal Service (SSRF Target — NOT exposed externally)
+  # Port: 8888 (internal only, accessible via Docker network)
+  # ============================================================
+  internal-service:
+    build:
+      context: ./internal-service
+      dockerfile: Dockerfile
+    environment:
+      - SECRET_KEY_PART1=${SECRET_KEY_PART1}
+      - SECRET_KEY_PART2_HINT=Check the internal database table: config_store, key=flask_secret_part2
+      - INTERNAL_PORT=${INTERNAL_SERVICE_PORT:-8888}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+    volumes:
+      - qa-data:/var/lib/qa-challenge
+    networks:
+      - qa-ctf-net
+    # Do NOT expose any ports — only accessible via internal Docker network
+    # Player must use XXE/SSRF from Stage 1 to reach this service
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8888/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+# ============================================================
+# Shared volumes
+# ============================================================
+volumes:
+  qa-data:
+    driver: local
+
+# ============================================================
+# Network — all services on the same internal bridge
+# ============================================================
+networks:
+  qa-ctf-net:
+    driver: bridge

@@ -1,0 +1,157 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "qa-ctf-dashboard",
+    "title": "QA CTF Challenge - Monitoring",
+    "tags": ["qa", "ctf", "security"],
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 0,
+    "refresh": "10s",
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "Request Rate (Wrong: shows /api/v2/ not /api/)",
+        "type": "graph",
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{job='qa-ctf',endpoint='/api/v2/'}[5m])",
+            "legendFormat": "{{method}} /api/v2/",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          { "format": "reqps", "label": "Requests/sec" },
+          { "format": "short" }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "PostgreSQL Connections (Decoy: uses SQLite)",
+        "type": "stat",
+        "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+        "targets": [
+          {
+            "expr": "pg_stat_activity_count{datname='qa_ctf'}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "steps": [
+                { "color": "green", "value": null },
+                { "color": "red", "value": 80 }
+              ]
+            },
+            "unit": "short"
+          }
+        }
+      },
+      {
+        "id": 3,
+        "title": "Redis Cache Hit Rate (Decoy: not actually used)",
+        "type": "gauge",
+        "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
+        "targets": [
+          {
+            "expr": "redis_keyspace_hits_total / (redis_keyspace_hits_total + redis_keyspace_misses_total) * 100",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "min": 0,
+            "max": 100,
+            "unit": "percent",
+            "thresholds": {
+              "steps": [
+                { "color": "red", "value": null },
+                { "color": "yellow", "value": 50 },
+                { "color": "green", "value": 80 }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 4,
+        "title": "WAF Blocked Requests (Fake: no WAF exists)",
+        "type": "graph",
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+        "targets": [
+          {
+            "expr": "rate(modsecurity_blocked_total{rule_id='921110'}[5m])",
+            "legendFormat": "Smuggling (921110)",
+            "refId": "A"
+          },
+          {
+            "expr": "rate(modsecurity_blocked_total{rule_id='944100'}[5m])",
+            "legendFormat": "SSTI (944100)",
+            "refId": "B"
+          },
+          {
+            "expr": "rate(modsecurity_blocked_total{rule_id='942100'}[5m])",
+            "legendFormat": "SQLi (942100)",
+            "refId": "C"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Flag Rotation Events (Decoy: no rotation exists)",
+        "type": "graph",
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+        "targets": [
+          {
+            "expr": "increase(qa_ctf_flag_rotations_total[1h])",
+            "legendFormat": "Flag rotations (last hour)",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Service Health (Misleading: wrong ports)",
+        "type": "table",
+        "gridPos": { "h": 8, "w": 24, "x": 0, "y": 16 },
+        "targets": [
+          {
+            "expr": "up{job='qa-ctf'}",
+            "format": "table",
+            "instant": true,
+            "refId": "A"
+          }
+        ],
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": { "__name__": true, "job": true },
+              "renameByName": {
+                "instance": "Service Endpoint",
+                "value": "Status"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "templating": {
+      "list": [
+        {
+          "name": "datasource",
+          "type": "datasource",
+          "query": "prometheus",
+          "current": { "text": "Prometheus", "value": "Prometheus" }
+        }
+      ]
+    }
+  },
+  "overwrite": true
+}

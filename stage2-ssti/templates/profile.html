@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>QA Portal - Profile</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #1a1a2e; color: #eee; }
+        .profile-header { background: #16213e; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .profile-info { background: #0f3460; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .profile-footer { color: #666; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="profile-header">
+        <h1>User Profile</h1>
+    </div>
+    <div class="profile-info">
+        <p><strong>Username:</strong> {{ username }}</p>
+        <p><strong>Role:</strong> {{ role }}</p>
+    </div>
+    <div class="profile-footer">
+        <p>QA User Portal v2.0</p>
+    </div>
+</body>
+</html>
