@@ -273,36 +273,222 @@ def server_error(e):
 
 @app.route('/')
 def index():
-    """Service info + red herring headers."""
-    resp = jsonify({
-        'service': 'QA-XML-Processor',
-        'version': '2.1.0',
-        'build': f'build-{random.randint(1000,9999)}',
-        'endpoints': {
-            '/api/parse': 'POST — Parse and process XML data',
-            '/api/health': 'GET — Health check',
-            '/api/status': 'GET — Service status',
-        },
-        'documentation': '/api-docs',  # RED HERRING — fake endpoint
-        'note': 'XML processing powered by WebAssembly validator v3.2',
-        'ref': random_uuid(),
-        # Subtle hints that waste time
-        'features': ['xml-validation', 'wasm-acceleration', 'entity-resolution', 'schema-validation'],
-        'limits': {
-            'max_xml_size': '1MB',
-            'rate_limit': '100/min',  # LIE — real limit is 5/10s
-        }
-    })
-    # Red herring headers
+    """Main landing page — beautiful dark cyberpunk CTF interface."""
+    # If client wants JSON (API client), return JSON
+    accept = request.headers.get('Accept', '')
+    if 'application/json' in accept:
+        resp = jsonify({
+            'service': 'QA-XML-Processor',
+            'version': '2.1.0',
+            'build': f'build-{random.randint(1000,9999)}',
+            'endpoints': {
+                '/api/parse': 'POST — Parse and process XML data',
+                '/api/health': 'GET — Health check',
+                '/api/status': 'GET — Service status',
+            },
+            'documentation': '/api-docs',
+            'note': 'XML processing powered by WebAssembly validator v3.2',
+            'ref': random_uuid(),
+            'features': ['xml-validation', 'wasm-acceleration', 'entity-resolution', 'schema-validation'],
+            'limits': {'max_xml_size': '1MB', 'rate_limit': '100/min'},
+        })
+        resp.headers['X-Xml-Schema-Version'] = '5'
+        resp.headers['X-Internal-Host'] = random_ip()
+        resp.headers['Server'] = 'QA-XML/2.1.0 (lxml/4.9.3)'
+        return resp
+
+    # Return beautiful HTML landing page
+    html = '''<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Babel Protocol — QA CTF Challenge</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a0f;color:#e0e0e0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;min-height:100vh;overflow-x:hidden}
+.bg-grid{position:fixed;top:0;left:0;width:100%;height:100%;background-image:linear-gradient(rgba(0,255,170,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,170,0.03) 1px,transparent 1px);background-size:50px 50px;z-index:0;pointer-events:none}
+.bg-glow{position:fixed;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 30% 50%,rgba(0,255,170,0.05) 0%,transparent 50%),radial-gradient(circle at 70% 30%,rgba(0,170,255,0.05) 0%,transparent 50%);z-index:0;pointer-events:none;animation:drift 20s ease-in-out infinite}
+@keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(-2%,1%)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scanline{0%{top:-100%}100%{top:200%}}
+.container{max-width:1200px;margin:0 auto;padding:20px;position:relative;z-index:1}
+header{text-align:center;padding:60px 20px 40px;animation:fadeIn 1s ease-out}
+.logo{font-size:3em;font-weight:900;letter-spacing:8px;background:linear-gradient(135deg,#00ffaa,#00aaff,#ff00aa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 0 40px rgba(0,255,170,0.3);margin-bottom:10px}
+.subtitle{font-size:1.1em;color:#888;letter-spacing:3px;text-transform:uppercase}
+.tagline{font-size:0.9em;color:#555;margin-top:8px;font-style:italic}
+.scanline{position:relative;overflow:hidden}
+.scanline::after{content:'';position:absolute;left:0;width:100%;height:4px;background:rgba(0,255,170,0.1);animation:scanline 4s linear infinite}
+.stages{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;margin:40px 0}
+.stage-card{background:linear-gradient(145deg,#111118,#0d0d14);border:1px solid #1a1a2e;border-radius:16px;padding:28px;position:relative;overflow:hidden;transition:all 0.3s ease;animation:fadeIn 0.8s ease-out both}
+.stage-card:nth-child(1){animation-delay:0.2s}
+.stage-card:nth-child(2){animation-delay:0.4s}
+.stage-card:nth-child(3){animation-delay:0.6s}
+.stage-card:hover{border-color:#00ffaa44;box-shadow:0 0 30px rgba(0,255,170,0.1);transform:translateY(-4px)}
+.stage-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:16px 16px 0 0}
+.stage-card.s1::before{background:linear-gradient(90deg,#00ffaa,#00cc88)}
+.stage-card.s2::before{background:linear-gradient(90deg,#00aaff,#0088dd)}
+.stage-card.s3::before{background:linear-gradient(90deg,#ff00aa,#dd0088)}
+.stage-num{font-size:0.75em;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;font-weight:600}
+.stage-card.s1 .stage-num{color:#00ffaa}
+.stage-card.s2 .stage-num{color:#00aaff}
+.stage-card.s3 .stage-num{color:#ff00aa}
+.stage-title{font-size:1.5em;font-weight:700;margin-bottom:12px;color:#f0f0f0}
+.stage-desc{font-size:0.9em;color:#888;line-height:1.6;margin-bottom:16px}
+.stage-tech{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px}
+.tech-tag{font-size:0.7em;padding:4px 10px;border-radius:20px;background:#1a1a2e;border:1px solid #2a2a3e;color:#aaa;letter-spacing:1px}
+.stage-card.s1 .tech-tag{border-color:#00ffaa33;color:#00ffaa99}
+.stage-card.s2 .tech-tag{border-color:#00aaff33;color:#00aaff99}
+.stage-card.s3 .tech-tag{border-color:#ff00aa33;color:#ff00aa99}
+.stage-link{display:inline-block;padding:10px 24px;border-radius:8px;text-decoration:none;font-size:0.85em;font-weight:600;letter-spacing:1px;transition:all 0.3s ease}
+.stage-card.s1 .stage-link{background:#00ffaa15;border:1px solid #00ffaa44;color:#00ffaa}
+.stage-card.s1 .stage-link:hover{background:#00ffaa25;box-shadow:0 0 20px rgba(0,255,170,0.2)}
+.stage-card.s2 .stage-link{background:#00aaff15;border:1px solid #00aaff44;color:#00aaff}
+.stage-card.s2 .stage-link:hover{background:#00aaff25;box-shadow:0 0 20px rgba(0,170,255,0.2)}
+.stage-card.s3 .stage-link{background:#ff00aa15;border:1px solid #ff00aa44;color:#ff00aa}
+.stage-card.s3 .stage-link:hover{background:#ff00aa25;box-shadow:0 0 20px rgba(255,0,170,0.2)}
+.parser-section{margin:50px 0;animation:fadeIn 1s ease-out 0.8s both}
+.section-title{font-size:1.6em;font-weight:700;margin-bottom:8px;color:#f0f0f0}
+.section-subtitle{font-size:0.9em;color:#666;margin-bottom:24px}
+.parser-box{background:#111118;border:1px solid #1a1a2e;border-radius:16px;padding:24px;position:relative}
+.parser-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#00ffaa,#00aaff);border-radius:16px 16px 0 0}
+.parser-header{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.status-dot{width:8px;height:8px;border-radius:50%;background:#00ffaa;animation:pulse 2s infinite}
+.parser-label{font-size:0.8em;color:#888;letter-spacing:2px;text-transform:uppercase}
+textarea{width:100%;min-height:160px;background:#0a0a0f;border:1px solid #1a1a2e;border-radius:8px;color:#e0e0e0;font-family:'Fira Code',monospace;font-size:0.85em;padding:16px;resize:vertical;outline:none;transition:border-color 0.3s}
+textarea:focus{border-color:#00ffaa44}
+.parser-actions{display:flex;gap:12px;margin-top:16px;align-items:center;flex-wrap:wrap}
+.btn{padding:10px 24px;border-radius:8px;border:none;cursor:pointer;font-size:0.85em;font-weight:600;letter-spacing:1px;transition:all 0.3s ease}
+.btn-primary{background:linear-gradient(135deg,#00ffaa,#00cc88);color:#0a0a0f}
+.btn-primary:hover{box-shadow:0 0 25px rgba(0,255,170,0.4);transform:translateY(-2px)}
+.btn-secondary{background:transparent;border:1px solid #2a2a3e;color:#888}
+.btn-secondary:hover{border-color:#00ffaa44;color:#00ffaa}
+.req-id-group{display:flex;align-items:center;gap:8px;margin-left:auto}
+.req-id-group label{font-size:0.75em;color:#666;letter-spacing:1px}
+.req-id-group input{background:#0a0a0f;border:1px solid #1a1a2e;border-radius:6px;color:#00ffaa;font-family:monospace;font-size:0.8em;padding:8px 12px;width:200px;outline:none}
+.req-id-group input:focus{border-color:#00ffaa44}
+.output-area{margin-top:16px;background:#08080d;border:1px solid #1a1a2e;border-radius:8px;padding:16px;min-height:80px;font-family:monospace;font-size:0.8em;color:#aaa;white-space:pre-wrap;word-break:break-all;max-height:300px;overflow-y:auto;display:none}
+.output-area.visible{display:block}
+.footer-info{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;margin:50px 0 30px;padding:24px;background:#111118;border:1px solid #1a1a2e;border-radius:16px}
+.info-item{padding:12px}
+.info-label{font-size:0.7em;color:#666;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.info-value{font-size:0.9em;color:#aaa}
+.info-value.mono{font-family:monospace;color:#00ffaa99}
+footer{text-align:center;padding:30px;color:#333;font-size:0.75em;letter-spacing:2px;border-top:1px solid #111118}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+<div class="container">
+<header class="scanline">
+<div class="logo">THE BABEL PROTOCOL</div>
+<div class="subtitle">QA Security Challenge</div>
+<div class="tagline">"Some protocols are meant to be broken"</div>
+</header>
+
+<div class="stages">
+<div class="stage-card s1">
+<div class="stage-num">Stage 1</div>
+<div class="stage-title">Wasm + XXE + SSRF</div>
+<div class="stage-desc">Reverse the WebAssembly validator to discover valid XML tags, then exploit an Out-of-Band XXE vulnerability chained with SSRF to access internal services and extract secrets.</div>
+<div class="stage-tech">
+<span class="tech-tag">WebAssembly</span>
+<span class="tech-tag">XXE</span>
+<span class="tech-tag">SSRF</span>
+<span class="tech-tag">OOB</span>
+<span class="tech-tag">lxml</span>
+</div>
+<a href="/api/parse" class="stage-link" onclick="event.preventDefault();document.querySelector('.parser-section').scrollIntoView({behavior:'smooth'})">XML Processor</a>
+</div>
+<div class="stage-card s2">
+<div class="stage-num">Stage 2</div>
+<div class="stage-title">SSTI + Session Forge</div>
+<div class="stage-desc">Recover the Flask secret key from two parts, forge a session cookie with an SSTI payload, and bypass the Jinja2 sandbox to achieve Remote Code Execution on the portal.</div>
+<div class="stage-tech">
+<span class="tech-tag">SSTI</span>
+<span class="tech-tag">Session</span>
+<span class="tech-tag">SHA256</span>
+<span class="tech-tag">SQLi</span>
+<span class="tech-tag">Jinja2</span>
+</div>
+<a href="/portal/" class="stage-link">User Portal</a>
+</div>
+<div class="stage-card s3">
+<div class="stage-num">Stage 3</div>
+<div class="stage-title">Smuggling + Race</div>
+<div class="stage-desc">Exploit HTTP TE.TE request smuggling to inject internal headers, then win a 3ms race condition to extract and decrypt the final flag from the vault.</div>
+<div class="stage-tech">
+<span class="tech-tag">HTTP Smuggling</span>
+<span class="tech-tag">TE.TE</span>
+<span class="tech-tag">Race Condition</span>
+<span class="tech-tag">XOR</span>
+<span class="tech-tag">nginx</span>
+</div>
+<a href="/api/vault/status" class="stage-link">Vault Backend</a>
+</div>
+</div>
+
+<div class="parser-section">
+<div class="section-title">XML Processor</div>
+<div class="section-subtitle">Powered by WebAssembly Validator v3.2 — Submit XML for parsing and validation</div>
+<div class="parser-box">
+<div class="parser-header">
+<div class="status-dot"></div>
+<div class="parser-label">XML Parser — Active</div>
+</div>
+<textarea id="xmlInput" placeholder="Paste your XML here...&#10;&#10;Example:&#10;&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#10;&lt;root&gt;&#10;  &lt;data&gt;Hello World&lt;/data&gt;&#10;&lt;/root&gt;"></textarea>
+<div class="parser-actions">
+<button class="btn btn-primary" onclick="parseXML()">Parse XML</button>
+<button class="btn btn-secondary" onclick="clearParser()">Clear</button>
+<div class="req-id-group">
+<label>X-Request-Id:</label>
+<input type="text" id="reqId" placeholder="Required header">
+</div>
+</div>
+<div class="output-area" id="output"></div>
+</div>
+</div>
+
+<div class="footer-info">
+<div class="info-item">
+<div class="info-label">Service</div>
+<div class="info-value mono">QA-XML-Processor v2.1.0</div>
+</div>
+<div class="info-item">
+<div class="info-label">Documentation</div>
+<div class="info-value"><a href="/api-docs" style="color:#00aaff;text-decoration:none">/api-docs</a></div>
+</div>
+<div class="info-item">
+<div class="info-label">Health Status</div>
+<div class="info-value"><a href="/api/health" style="color:#00ffaa;text-decoration:none">/api/health</a></div>
+</div>
+<div class="info-item">
+<div class="info-label">Flag Format</div>
+<div class="info-value mono">QA{...}</div>
+</div>
+</div>
+
+<footer>THE BABEL PROTOCOL &mdash; QA SECURITY CHALLENGE &mdash; ALL REQUESTS RETURN 200 OK</footer>
+</div>
+
+<script>
+function parseXML(){const xml=document.getElementById('xmlInput').value;const reqId=document.getElementById('reqId').value;const output=document.getElementById('output');if(!xml.trim()){output.textContent='[!] No XML input provided';output.classList.add('visible');return}if(!reqId.trim()){output.textContent='[!] X-Request-Id header is required';output.classList.add('visible');return}output.textContent='[...] Processing...';output.classList.add('visible');fetch('/api/parse',{method:'POST',headers:{'Content-Type':'application/xml','X-Request-Id':reqId},body:xml}).then(r=>r.json()).then(d=>{output.textContent=JSON.stringify(d,null,2)}).catch(e=>{output.textContent='[!] Error: '+e.message})}
+function clearParser(){document.getElementById('xmlInput').value='';document.getElementById('reqId').value='';const o=document.getElementById('output');o.textContent='';o.classList.remove('visible')}
+document.getElementById('reqId').value=crypto.randomUUID?crypto.randomUUID().slice(0,8):Math.random().toString(36).slice(2,10);
+</script>
+</body>
+</html>'''
+
+    resp = make_response(html)
+    resp.headers['Content-Type'] = 'text/html; charset=utf-8'
+    # Still add red herring headers
     resp.headers['X-Debug-Token'] = random_hex(16)
     resp.headers['X-Service-Id'] = 'qa-xml-' + random_hex(8)
-    # REAL hint: schema version (players must notice this)
     resp.headers['X-Xml-Schema-Version'] = '5'
-    # Noise headers
-    resp.headers['X-Request-Trace'] = random_uuid()
-    resp.headers['X-Region'] = random.choice(['us-east-1', 'eu-west-2', 'ap-south-1'])
-    resp.headers['X-Internal-Host'] = random_ip()  # FAKE
-    resp.headers['Server'] = 'QA-XML/2.1.0 (lxml/4.9.3)'  # Real version — suggests lxml vulns
+    resp.headers['X-Internal-Host'] = random_ip()
+    resp.headers['Server'] = 'QA-XML/2.1.0 (lxml/4.9.3)'
     return resp
 
 
@@ -1219,18 +1405,18 @@ ADMIN_PASS={random_hex(16)}
 def fake_git_config():
     """Fake git config — suggests repo access."""
     return Response("""[core]
-	repositoryformatversion = 0
-	filemode = true
-	bare = false
-	logallrefupdates = true
+        repositoryformatversion = 0
+        filemode = true
+        bare = false
+        logallrefupdates = true
 [remote "origin"]
-	url = https://github.com/qa-internal/xml-processor.git
-	fetch = +refs/heads/*:refs/remotes/origin/*
+        url = https://github.com/qa-internal/xml-processor.git
+        fetch = +refs/heads/*:refs/remotes/origin/*
 [branch "main"]
-	remote = origin
-	merge = refs/heads/main
+        remote = origin
+        merge = refs/heads/main
 [submodule "wasm-validator"]
-	url = https://github.com/qa-internal/wasm-validator.git
+        url = https://github.com/qa-internal/wasm-validator.git
 """, mimetype='text/plain')
 
 

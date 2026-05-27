@@ -469,18 +469,126 @@ def handle_exception(e):
 
 @app.route('/')
 def index():
-    return jsonify(noise_dict({
-        'service': 'QA-Vault-Backend',
-        'version': '3.0.0',
-        'build': '2024.12.15-rc3',
-        'endpoints': {
-            '/api/health': 'GET — Health check',
-            '/api/vault/status': 'GET — Vault status',
-            '/api/vault/grant': 'POST — Request role elevation',
-            '/admin/vault': 'POST — Admin vault access',
-            '/admin/vault/flag': 'GET — Get flag from memory',
-        }
-    }))
+    accept = request.headers.get('Accept', '')
+    if 'application/json' in accept:
+        return jsonify(noise_dict({
+            'service': 'QA-Vault-Backend',
+            'version': '3.0.0',
+            'build': '2024.12.15-rc3',
+            'endpoints': {
+                '/api/health': 'GET', '/api/vault/status': 'GET',
+                '/api/vault/grant': 'POST', '/admin/vault': 'POST',
+                '/admin/vault/flag': 'GET',
+            }
+        }))
+
+    html = '''<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA Vault Backend</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a0f;color:#e0e0e0;font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh}
+.bg{position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at 60% 40%,rgba(255,0,170,0.04) 0%,transparent 50%),radial-gradient(circle at 30% 70%,rgba(0,170,255,0.03) 0%,transparent 50%);z-index:0}
+.container{max-width:900px;margin:0 auto;padding:40px 20px;position:relative;z-index:1;animation:fadeIn 0.6s ease-out}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+header{text-align:center;margin-bottom:40px}
+h1{font-size:2.2em;font-weight:800;background:linear-gradient(135deg,#ff00aa,#dd0088);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.sub{font-size:0.85em;color:#555;letter-spacing:3px;text-transform:uppercase}
+.dashboard{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:30px}
+.card{background:#111118;border:1px solid #1a1a2e;border-radius:12px;padding:20px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#ff00aa,#dd0088);border-radius:12px 12px 0 0}
+.card-label{font-size:0.7em;color:#666;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.card-value{font-size:1.4em;font-weight:700;color:#f0f0f0}
+.card-value.mono{font-family:monospace;color:#ff00aa99}
+.card-value.ok{color:#00ffaa}
+.card-value.locked{color:#ff6666}
+.status-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:30px}
+.status-item{background:#111118;border:1px solid #1a1a2e;border-radius:10px;padding:16px;text-align:center}
+.status-dot{width:10px;height:10px;border-radius:50%;margin:0 auto 8px}
+.status-dot.green{background:#00ffaa;box-shadow:0 0 10px rgba(0,255,170,0.5);animation:pulse 2s infinite}
+.status-dot.red{background:#ff4444}
+.status-label{font-size:0.7em;color:#666;letter-spacing:1px;text-transform:uppercase}
+.vault-panel{background:#111118;border:1px solid #1a1a2e;border-radius:16px;padding:24px;margin-bottom:24px}
+.vault-panel h2{font-size:1.1em;color:#e0e0e0;margin-bottom:16px;letter-spacing:1px}
+.vault-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#ff00aa,#00aaff);border-radius:16px 16px 0 0}
+.endpoints{list-style:none}
+.endpoints li{padding:10px 0;border-bottom:1px solid #1a1a2e;font-size:0.85em;display:flex;justify-content:space-between;align-items:center}
+.endpoints li:last-child{border:none}
+.ep-method{padding:3px 8px;border-radius:4px;font-size:0.7em;font-weight:700;letter-spacing:1px}
+.ep-method.get{background:#00ffaa15;color:#00ffaa;border:1px solid #00ffaa33}
+.ep-method.post{background:#ff00aa15;color:#ff00aa;border:1px solid #ff00aa33}
+.ep-path{font-family:monospace;color:#aaa;font-size:0.8em}
+.ep-desc{color:#555;font-size:0.75em}
+footer{text-align:center;padding:30px;color:#333;font-size:0.7em;letter-spacing:2px}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="container">
+<header>
+<h1>VAULT BACKEND</h1>
+<div class="sub">QA Security Infrastructure v3.0.0</div>
+</header>
+
+<div class="dashboard">
+<div class="card">
+<div class="card-label">Vault Status</div>
+<div class="card-value locked" id="vaultStatus">LOCKED</div>
+</div>
+<div class="card">
+<div class="card-label">Flag in Memory</div>
+<div class="card-value" id="flagMemory" style="color:#555">None</div>
+</div>
+<div class="card">
+<div class="card-label">Access Level</div>
+<div class="card-value mono">user</div>
+</div>
+<div class="card">
+<div class="card-label">Requests</div>
+<div class="card-value mono" id="reqCount">0</div>
+</div>
+</div>
+
+<div class="status-grid">
+<div class="status-item">
+<div class="status-dot green"></div>
+<div class="status-label">Database</div>
+</div>
+<div class="status-item">
+<div class="status-dot green"></div>
+<div class="status-label">Cache</div>
+</div>
+<div class="status-item">
+<div class="status-dot red"></div>
+<div class="status-label">Admin Access</div>
+</div>
+</div>
+
+<div class="vault-panel">
+<h2>API Endpoints</h2>
+<ul class="endpoints">
+<li><span><span class="ep-method get">GET</span> <span class="ep-path">/api/health</span></span><span class="ep-desc">Health check</span></li>
+<li><span><span class="ep-method get">GET</span> <span class="ep-path">/api/vault/status</span></span><span class="ep-desc">Vault status</span></li>
+<li><span><span class="ep-method post">POST</span> <span class="ep-path">/api/vault/grant</span></span><span class="ep-desc">Request elevation</span></li>
+<li><span><span class="ep-method post">POST</span> <span class="ep-path">/admin/vault</span></span><span class="ep-desc">Admin vault access</span></li>
+<li><span><span class="ep-method get">GET</span> <span class="ep-path">/admin/vault/flag</span></span><span class="ep-desc">Get encrypted flag</span></li>
+</ul>
+</div>
+
+<footer>VAULT BACKEND &mdash; QA SECURITY INFRASTRUCTURE &mdash; ALL REQUESTS RETURN 200 OK</footer>
+</div>
+<script>
+fetch('/api/vault/status').then(r=>r.json()).then(d=>{if(d.vault_status)document.getElementById('vaultStatus').textContent=d.vault_status.toUpperCase();if(d.flag_in_memory!==undefined)document.getElementById('flagMemory').textContent=d.flag_in_memory?'Available':'None';if(d.concurrent_requests)document.getElementById('reqCount').textContent=d.concurrent_requests}).catch(()=>{});
+</script>
+</body>
+</html>'''
+    resp = make_response(html)
+    resp.headers['Content-Type'] = 'text/html; charset=utf-8'
+    return resp
 
 
 @app.route('/api/health')
